@@ -2,6 +2,7 @@ package filecache
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -32,7 +33,7 @@ func TestCache(t *testing.T) {
 	f1.Write(data1)
 
 	fc := New(f1.Name())
-	fc.MaxAge = 1 * time.Second
+	fc.MaxAge = 1 * time.Millisecond
 	fc.UpdateFunc = updater
 
 	f2, err := fc.Get()
@@ -50,7 +51,7 @@ func TestCache(t *testing.T) {
 	}
 
 	// Wait for cache to expire...
-	time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Millisecond)
 
 	f3, err := fc.Get()
 	if err != nil {
@@ -64,5 +65,64 @@ func TestCache(t *testing.T) {
 
 	if !bytes.Equal(content, data2) {
 		t.Fatalf("bad: %#v", content)
+	}
+}
+
+func TestCacheNoFile(t *testing.T) {
+	fc := New("/no-such-file")
+	if !fc.Expired() {
+		t.Fatalf("expected non-existent file to be expired")
+	}
+}
+
+func TestCacheNoUpdateFunc(t *testing.T) {
+	data1 := []byte{0}
+
+	f1, err := ioutil.TempFile("", "")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	defer os.Remove(f1.Name())
+
+	f1.Write(data1)
+
+	fc := New(f1.Name())
+	fc.MaxAge = 1 * time.Millisecond
+
+	// Wait for expiration
+	time.Sleep(1 * time.Millisecond)
+
+	f2, err := fc.Get()
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	content, err := ioutil.ReadAll(f2)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	if !bytes.Equal(content, data1) {
+		t.Fatalf("bad: %#v", content)
+	}
+}
+
+func TestCacheError(t *testing.T) {
+	updater := func(path string) error {
+		return errors.New("test error")
+	}
+
+	f1, err := ioutil.TempFile("", "")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	defer os.Remove(f1.Name())
+
+	fc := New(f1.Name())
+	fc.UpdateFunc = updater
+	fc.MaxAge = 1 * time.Millisecond
+
+	if _, err := fc.Get(); err == nil {
+		t.Fatalf("expected error from update func")
 	}
 }
