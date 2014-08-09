@@ -14,7 +14,7 @@ age to 5 seconds, and run the example in a bash loop to demonstrate the cache
 timeout:
 
 ```
-$ while sleep 1; do go run cache.go; done
+$ while sleep 1; do go run cachetest.go; done
 2014-08-09 13:13:17.435246233 -0700 PDT
 2014-08-09 13:13:17.435246233 -0700 PDT
 2014-08-09 13:13:17.435246233 -0700 PDT
@@ -28,7 +28,7 @@ $ while sleep 1; do go run cache.go; done
 
 And the code:
 
-```
+```go
 package main
 
 import (
