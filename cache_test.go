@@ -33,7 +33,7 @@ func TestCache(t *testing.T) {
 	f1.Write(data1)
 
 	fc := New(f1.Name())
-	fc.MaxAge = 1 * time.Millisecond
+	fc.MaxAge = 1 * time.Second
 	fc.UpdateFunc = updater
 
 	f2, err := fc.Get()
@@ -50,8 +50,8 @@ func TestCache(t *testing.T) {
 		t.Fatalf("bad: %s", content)
 	}
 
-	// Wait for cache to expire...
-	time.Sleep(1 * time.Millisecond)
+	// Wait for cache to expire
+	time.Sleep(1 * time.Second)
 
 	f3, err := fc.Get()
 	if err != nil {
@@ -87,10 +87,10 @@ func TestCacheNoUpdateFunc(t *testing.T) {
 	f1.Write(data1)
 
 	fc := New(f1.Name())
-	fc.MaxAge = 1 * time.Millisecond
+	fc.MaxAge = 1 * time.Second
 
-	// Wait for expiration
-	time.Sleep(1 * time.Millisecond)
+	// Wait for cache to expire
+	time.Sleep(1 * time.Second)
 
 	f2, err := fc.Get()
 	if err != nil {
@@ -120,7 +120,10 @@ func TestCacheError(t *testing.T) {
 
 	fc := New(f1.Name())
 	fc.UpdateFunc = updater
-	fc.MaxAge = 1 * time.Millisecond
+	fc.MaxAge = 1 * time.Second
+
+	// Wait for cache to expire
+	time.Sleep(1 * time.Second)
 
 	if _, err := fc.Get(); err == nil {
 		t.Fatalf("expected error from update func")
