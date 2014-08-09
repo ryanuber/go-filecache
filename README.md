@@ -1,5 +1,4 @@
-go-filecache
-============
+# go-filecache [![Build Status](https://travis-ci.org/ryanuber/go-filecache.svg)](https://travis-ci.org/ryanuber/go-filecache)
 
 This is a very small file cache library in Golang. It allows you to read a file
 from disk with a conditional update based on last modified time from
