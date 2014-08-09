@@ -32,9 +32,7 @@ func TestCache(t *testing.T) {
 
 	f1.Write(data1)
 
-	fc := New(f1.Name())
-	fc.MaxAge = 1 * time.Second
-	fc.UpdateFunc = updater
+	fc := New(f1.Name(), 1*time.Second, updater)
 
 	f2, err := fc.Get()
 	if err != nil {
@@ -69,7 +67,7 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheNoFile(t *testing.T) {
-	fc := New("/no-such-file")
+	fc := New("/no-such-file", 0, nil)
 	if !fc.Expired() {
 		t.Fatalf("expected non-existent file to be expired")
 	}
@@ -86,8 +84,7 @@ func TestCacheNoUpdateFunc(t *testing.T) {
 
 	f1.Write(data1)
 
-	fc := New(f1.Name())
-	fc.MaxAge = 1 * time.Second
+	fc := New(f1.Name(), 1*time.Second, nil)
 
 	// Wait for cache to expire
 	time.Sleep(1 * time.Second)
@@ -118,9 +115,7 @@ func TestCacheError(t *testing.T) {
 	}
 	defer os.Remove(f1.Name())
 
-	fc := New(f1.Name())
-	fc.UpdateFunc = updater
-	fc.MaxAge = 1 * time.Second
+	fc := New(f1.Name(), 1*time.Second, updater)
 
 	// Wait for cache to expire
 	time.Sleep(1 * time.Second)
